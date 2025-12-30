@@ -50,7 +50,7 @@ public static int binarySearchBasic(int []a, int target){
 
 不过,可以使用 (i + j) >>> 2 ,使用向右移一位来除以二就没有问题,因为无符号数向右移一位是在首位补0,所以不会出现错误
 
-### 4.二分查找改动版
+### 4.二分查找改动版(binarySearchAlternative)
 
 二分查找改动版:
 
@@ -154,7 +154,7 @@ public static int binarySearchBasic(int []a, int target){
 
 + 需要常数个指针i,j,m,因此额外占有的空间是$O(1)$
 
-### 9.二分查找平衡版
+### 9.二分查找平衡版(binarySearchBalance)
 
 当我们观察二分查找的算法的时候可以发现一个问题
 
@@ -182,6 +182,73 @@ public static int binarySearchBasic(int []a, int target){
  下面是平衡版的实现算法:
 
 ```java
-public static int bin
+public static int binarySearchBalance(int[]a, int target){
+        int i = 0, j = a.length;
+        while(1 < j - i){
+            int mid = (i + j) >>> 1;
+            if(target < a[mid]){ //避免了else if 的使用,避免了数据查找效率不均匀的情况
+                j = mid;
+            }else {
+                i = mid; //i = mid, 不能再+1了,否则就考虑不到正好在索引为1的情况了
+            }
+        }
+        if(target == a[i]){
+            return i;
+        }else{
+            return -1;
+        }
+    }
+}
 ```
+
+优点:在数据量大的时候,体现比较明显,效率更高
+
+缺点:二分查找基础版最好情况是$O(1)$,但是平衡版最好和最坏的情况都是$O(log(n))$
+
+不过缺点可以忽略,相比较来说,优点比缺点好很多
+
+### 10.二分查找java版
+
+我们可以找到在java中的binarySearch是怎么实现的
+
+![image-20251230202708575](./images/image-20251230202708575.png)
+
+采用的是我们basic的方法,但是为什么最后一行是 $-(low + 1)$呢
+
+这是因为java中想表示的是,返回的是插入点,比如说一个数组 {2 , 3,  5, 9 }
+
+我们查找4, 发现4不在这个数组中,并且返回了一个 - 3
+
+这是因为, 最后这一行是返回  -插入点 - 1  ,我们没查找到4,如果想插入4的话,应该是插入到索引为2的位置上,
+
+所以返回 -2-1 ,也就是 -3
+
+也就是说 low 就是插入点
+
+那么既然都有了插入点,我们多引申一点插入索引数字到数组的方法:
+
+```java
+public static int[] addIndexNumber(int[]a, int target){
+        int insertIndex = Math.abs(Arrays.binarySearch(a, target) + 1); //插入点索引
+        int[]b = new int[a.length + 1];
+        System.arraycopy(a, 0, b, 0, insertIndex);
+        //解释一下System.arraycopy,也就是把要复制的数组(a)从索引0开始复制n个元素(insertIndex)到数组b,并且从b的索引0开始
+        b[insertIndex] = target;
+        System.arraycopy(a, insertIndex, b, insertIndex + 1, a.length - insertIndex);
+        return b;
+    }
+```
+
+使用:
+
+```java
+public static void main(String[] args) {
+        int []a = {2, 5, 8};
+        int target = 4;
+        int []newArray = addIndexNumber(a, target);
+        System.out.println(Arrays.toString(newArray));
+    }
+```
+
+
 
