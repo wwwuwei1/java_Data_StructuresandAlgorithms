@@ -250,5 +250,170 @@ public static void main(String[] args) {
     }
 ```
 
+### 11.二分查找LeftRightmost
 
+如果数组中有相同大小的元素,查找最前面的目标元素
+
+代码实现:
+
+```java
+public class BinarySearchLeftRightMost {
+    public static int binarySearchLeftRightMost(int[] a, int target) {
+        int i = 0, j = a.length - 1;
+        int candidate = -1;
+        while (i <= j) {
+            int mid = (i + j) >>> 1;
+            if (a[mid] < target) {
+                j = mid - 1;
+            } else if (a[mid] > target) {
+                i = mid + 1;
+            } else {
+                //记录候选位置
+                candidate = mid;
+                j = mid - 1;
+                //RightMost的区别是j = mid - 1改为 i = mid + 1,向右找
+            }
+        }
+        return candidate;
+    }
+}
+```
+
+BinarySearchLeftRightMostAlternative(改动返回值)
+
+```kotlin
+//public class BinarySearchLeftRightMostAlternative {
+//    public static int binarySearchLeftRightMostAlternative(int[]a, int target){
+//        int i = 0, j = a.length - 1;
+//        while( i <= j ){
+//            int mid = (i + j) >>> 1;
+//            if(target <= a[mid]){ //当目标值在中间值的上方或者左边时移动右边指针
+//                j = mid - 1;
+//            }else{
+//                i = mid + 1;
+//            }
+//        }
+//        return i;  //最后不再返回-1,而是返回一个有意义的值i,i代表着如果能找到元素,返回最左边查找到的索引
+//        //如果找不到元素,返回大于等于目标的最靠左的索引位置
+//    }
+//}
+
+public class BinarySearchLeftRightMostAlternative {
+    public static int binarySearchLeftRightMostAlternative(int[]a, int target){
+        int i = 0, j = a.length - 1;
+        while( i <= j ){
+            int mid = (i + j) >>> 1;
+            if(target < a[mid]){ //当目标值在中间值的上方或者左边时移动左边指针
+                j = mid - 1;
+            }else{
+                i = mid + 1;
+            }
+        }
+        return i - 1;  //最后不再返回-1,而是返回一个有意义的值i,i代表着如果能找到元素,返回最右边查找到的索引
+        //如果找不到元素,返回小于等于目标的最靠右的索引位置
+    }
+}
+
+```
+
+### 12.二分查找LeftRightmost的应用
+
+![image-20260104193651395](./images/image-20260104193651395.png)
+
+1. 求排名:要找到最左侧的4,才知道4的排名是多少,所以使用(leftmost(4) = 2 + 1)
+2. 求前任:4的前任,使用(leftmost(4) - 1)
+3. 求后人:5的后任,使用(rightmost(5) + 1)
+4. 最近邻居:求出前任和后任,之后求出两个之中小的那个
+5. 查找范围:如果想查找x < 4的范围: 求的是 0..leftmost(4) - 1
+
+​                        如果像查找x <= 4的范围: 求的是 0..rightmost(4) 
+
+​                        如果想查找x > 4的范围: 求的是 rightmost(4) + 1 .. a.length
+
+​                        如果想查找x >= 4的范围: 求的是 leftmost(4) .. l.length
+
+​                        如果想查找4 <= x <= 7的范围: 求的是 leftmost(4) .. rightmost(7)
+
+​                        如果想查找4 < x < 7的范围: 求的是 leftmost(4)+1  .. rightmost(7)-1
+
+### 13.leetcode相关题目(leetcode 34, 35, 704)
+
+1. ![image-20260104212827503](./images/image-20260104212827503.png)
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        int i = 0, j = nums.length - 1;
+        while(i <= j){
+            int mid = (i + j) >>> 1;
+            if(nums[mid] < target){
+                i = mid + 1;
+            }else if(nums[mid] > target){
+                j = mid - 1;
+            }else{
+                return mid;
+            }
+        }
+        return -1;
+    }
+}
+```
+
+2. ![image-20260104212916228](./images/image-20260104212916228.png)
+
+```java
+class Solution {
+    public int searchInsert(int[] nums, int target) {
+        int i = 0, j = nums.length;
+        while(i < j){
+            int mid = (i + j) >>> 1;
+            if(target < nums[mid]){
+                j = mid;
+            }else if(target > nums[mid]){
+                i = mid + 1;
+            }else{
+                return mid;
+            }
+        }
+        return i;
+    }
+}
+```
+
+3. ![image-20260104212952731](./images/image-20260104212952731.png)
+
+```java
+class Solution {
+    public int[] searchRange(int[] nums, int target) {
+       int x = findBound(nums, target, true);
+       if(x == -1){
+        return new int[]{-1, -1};
+       }else{
+        return new int[]{x, findBound(nums, target, false)};
+       }
+    }
+
+    public int findBound(int[]nums, int target, boolean findleft){
+        int i = 0, j = nums.length - 1;
+        int result = -1;
+        while(i <= j){
+            int mid = (i + j) >>> 1;
+            if(target == nums[mid]){
+                result = mid;
+                if(findleft){
+                    j = mid - 1;
+                }else{
+                    i = mid + 1;
+                }
+            }else if(target < nums[mid]){
+                j = mid - 1;
+            }else{
+                i = mid + 1;
+            }
+        }
+        return result;
+    }
+}
+
+```
 
