@@ -433,3 +433,100 @@ int[] array = {1, 2, 3, 4, 5}
 
 + i为索引,在Java,C等语言都是从0开始
 + size为每个元素占用的字节,例如int占4字节,double占8字节
+
+### 2.性能
+
+#### (1)空间占用
+
+java中的数组结构为
+
++ 8字节 markword(用于记录哈希码等)
++ 4字节 class指针
++ 4字节 数组大小(决定了数组的最大容量为2^32^)
++ 数组元素+对齐字节(java中的对象大小都是8字节的整数倍,不足的使用对齐字补足)
+
+```java
+int[] array = {1, 2, 3, 4, 5}
+```
+
+![image-20260306144714660](./images/image-20260306144714660.png)
+
+上述数组的大小为40字节,组成为
+
+```java
+8 + 4 + 4 + 5*4 + 4(alignment)
+```
+
+#### (2)随机访问
+
+即根据索引查找元素,时间复杂度为$O(1)$
+
+### 3.动态数组
+
+#### (1)动态数组的创建
+
+```java
+public class DynamicArray{
+    private int size = 0; //逻辑大小
+    private int capacity = 8; //容量
+    private int[] array = new int[capacity];
+}
+```
+
+动态数组所含的三个元素
+
+size:逻辑大小,数组中真实存在的元素的个数
+
+capacity:数组的容量大小
+
+以及int[] array:数组本身
+
+#### (2)动态数组-插入
+
+第一种:插入到最后
+
+方法实现:size作为一个指针,代表数组中真实存在的元素个数,也就是size永远指向数组中的最后一个元素
+
+```java
+public void addLast(int element){
+    array[size] = element;
+    size++;
+}
+```
+
+第二种:随机插入
+
+首先先引入一个java方法:
+
+```java
+System.arraycopy(array(要复制的数组), index(复制的起始位置), array(复制到的数组),index1(粘贴的起始位置),要复制的元素个数)
+```
+
+方法实现:将要插入位置和其后面的元素向后移一位(即将这些元素复制到本数组的后面位置),然后插入要插入的元素
+
+```java
+public void add(int index, int element){
+    if(index >= 0 && index < size){
+        System.arraycopy(array, index, array, index+1, size-index);
+        array[index] = element;
+        size++;
+    }  
+}
+```
+
+上面两种融合在一起
+
+```java
+public void add(int index, int element){
+    if(index >= 0 && index <= size){
+        System.arraycopy(array, index, array, index+1, size-index);
+    }
+    array[index] = element;
+    size++;}
+}
+```
+
+
+
+  
+
